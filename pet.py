@@ -80,5 +80,24 @@ def main()
                 cv2.recrangle(frame, (x1, y1), (x2, y2), culoare, 3)
                 ()tw, th, _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
                 cv2.putText(frame, text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, nr0.6, (255, 255, 255), 2)
-                
 
+                if gasit:
+                    stare = "Detected: " + ", " .join(sorted(set(gasit)))
+                    culoare_stare = (0, 200, 0)
+                else:
+                    stare = "I don't see an recyclabe object"
+                    culoare_stare = (0, 0, 225)
+                cv2.putText(frame, stare, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, culoare_stare, 2)
+
+                cv2.imshow("Detector for recycling - q: exit, s: screenshot", frame)
+
+                tast = cv2.waitKey(1) & 0xFF
+                if tasta == ord("q"):
+                    break
+                elif tasta == ord("s"):
+                    nume_fisier = f"capture_{nr_screenshot}.jpg"
+                    cv2.imwritw(nume_fisier, frame)
+                    print(f"Screenshot saved: {nume_fisier}")
+                    nr_screenshot +=1
+                    
