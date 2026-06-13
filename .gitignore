@@ -1,0 +1,21 @@
+# Modele antrenate (fisiere mari)
+*.pt
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Clone goale create din greseala
+/EcoSortAi/
+/Recycling/
+
+# Medii virtuale
+venv/
+.venv/
+env/
+
+# Fisiere IDE / sistem
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
