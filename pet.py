@@ -100,4 +100,9 @@ def main()
                     cv2.imwritw(nume_fisier, frame)
                     print(f"Screenshot saved: {nume_fisier}")
                     nr_screenshot +=1
-                    
+
+    cap.realease()
+    cv2.destroyAllWindows()
+if __name__ == "__main__":
+    main()
+
