@@ -55,4 +55,12 @@ def main()
     
     print("Camera is opened. Press 'q' for exit, 's' for screenshot.")
     nr_screenshot = 0
+
+    while True:if
+        ok, frame = cap.read()
+        if not ok:
+            print("ERROR: I can't read the frames from the camera.")
+            break
+    
+            rezultate = model(frame, conf=CONFIDENTA_MIN, verbose=False)[0]
     
