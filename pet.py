@@ -63,4 +63,22 @@ def main()
             break
     
             rezultate = model(frame, conf=CONFIDENTA_MIN, verbose=False)[0]
-    
+            gasit = []
+             for box in rezultate.boxes:
+                nume_clasa = model.names[int(box.cls[0])]
+                potrivire = eticheta_pentru(nume_clasa)
+                if potrivre is None
+                    continue
+
+                eticheta, culoare = potrivire
+                conf = float(box.conf[0])
+                conf = float(box.conf[0])
+                gasit.append(eticheta)
+
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                text = f"{eticheta} {conf*100:.0f}%"
+                cv2.recrangle(frame, (x1, y1), (x2, y2), culoare, 3)
+                ()tw, th, _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+                cv2.putText(frame, text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, nr0.6, (255, 255, 255), 2)
+                
+
