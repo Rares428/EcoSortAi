@@ -1,72 +1,47 @@
-# Detector de reciclare (sticla / PET / doza)
+- This app detects recyclable objects (cans, plastic bottles and glass bottles)
+- It can detect them live or on a folder with photos
+- The program combines two models: YOLOv8 - COCO trained model and waste_best.pt - model trained for waste, overlapping detection is eliminated
+- Installing in powershell: pip install -r requirements.txt
+- Dependencies: `opencv-python`, `ultralytics`, `roboflow`
+- Run live on camera: powershell --> python pet.py, commands: `q` = exit, `s` = screenshot (saved as `capture_N.jpg`).
+- On a folder of images: Put the images (`.jpg`, `.jpeg`, `.png`, `.webp`) in the `test_images/` folder: powershell python test_poze.py
+- The annotated images appear in `test_rezultate/`, and the console shows what was detected in each image.
 
-Program care deschide camera web si detecteaza in timp real obiecte reciclabile
-folosind YOLOv8.
+Training your own model (for can detection)
 
-## Instalare
+- The COCO model does not know the "can" class, so detecting cans requires training your own model, saved as `waste_best.pt`.
 
-```powershell
-pip install -r requirements.txt
-```
-
-## Rulare rapida (model pre-antrenat COCO)
-
-```powershell
-python pet.py
-```
-
-Detecteaza bine **sticla / PET** (clasa `bottle`). Doza este doar aproximata
-(COCO nu are clasa de doza). Pentru detectie corecta a dozelor -> antreneaza un
-model propriu (mai jos).
-
-Comenzi in fereastra: `q` = iesire, `s` = screenshot.
-
-## Antrenare model propriu (sticla / PET / doza)
-
-### 1. Obtine un dataset etichetat
-Cel mai simplu, de pe [Roboflow Universe](https://universe.roboflow.com):
-
-1. Cont gratuit pe https://roboflow.com
-2. Cheia API: https://app.roboflow.com/settings/api
-3. Descarca dataset-ul:
-   ```powershell
-   $env:ROBOFLOW_API_KEY = "cheia_ta"
+### 1. Get a labeled dataset (Roboflow Universe)
+1. Free account at https://roboflow.com
+2. API key: https://app.roboflow.com/settings/api
+3. Download the dataset:
+   powershell --> $env:ROBOFLOW_API_KEY = "your_key"
    python download_data.py
-   ```
-   (Implicit: *Updated Recycling Dataset* cu clase PET, metal_can, glass_bottle. 
-   Poti schimba workspace/project/version in `download_data.py` sau din linia de comanda.)
+   (Default: *Updated Recycling Dataset*, classes PET / metal_can / glass_bottle.
+   You can change workspace/project/version in `download_data.py` or on the command line.)
 
-### 2. Antreneaza
-```powershell
-python train.py --data dataset/data.yaml --epochs 50 --imgsz 640
-```
-Pe CPU (cazul tau, fara placa video) e lent. Pentru un test rapid:
-```powershell
-python train.py --data dataset/data.yaml --epochs 30 --imgsz 416 --batch 8
-```
-Pentru antrenare rapida cu GPU gratuit, foloseste **Google Colab** (vezi mai jos).
+### 2. Train
+powershell --> python train.py --data dataset/data.yaml --epochs 50 --imgsz 640
+On CPU (no GPU) it is slow. For a quick test:
+powershell --> python train.py --data dataset/data.yaml --epochs 30 --imgsz 416 --batch 8
+The result lands in `runs/detect/reciclare/weights/best.pt`. Rename it to
+`waste_best.pt` (or adjust `pet.py`) so it is used for detection.
 
-### 3. Foloseste modelul antrenat
-Dupa antrenare, modelul ajunge in `runs/detect/reciclare/weights/best.pt`.
-`pet.py` il detecteaza si il foloseste **automat** la urmatoarea rulare:
-```powershell
-python pet.py
-```
-
-## Antrenare pe GPU gratuit (Google Colab) — recomandat
-Calculatorul tau nu are GPU, deci antrenarea locala e lenta. Alternativ, in Colab:
-```python
+### Training on a free GPU (Google Colab) — recommended
+See `reciclare_colab.ipynb`, or use directly:
+python
 !pip install ultralytics roboflow
 from roboflow import Roboflow
-rf = Roboflow(api_key="CHEIA_TA")
+rf = Roboflow(api_key="YOUR_KEY")
 ds = rf.workspace("recyclestuff").project("updated-recycling-dataset").version(1).download("yolov8")
 from ultralytics import YOLO
 YOLO("yolov8n.pt").train(data=ds.location + "/data.yaml", epochs=50, imgsz=640)
-```
-Apoi descarca `best.pt` si pune-l in `runs/detect/reciclare/weights/best.pt` local.
+Then download `best.pt` and place it locally as `waste_best.pt`.
 
-## Fisiere
-- `pet.py` — detectie live cu camera (alege automat modelul antrenat sau COCO)
-- `download_data.py` — descarca dataset de pe Roboflow
-- `train.py` — antreneaza modelul YOLO
-- `requirements.txt` — dependinte
+### Configuration
+In `pet.py` you can tune:
+- `CAMERA_INDEX` — camera index (0, 1, 2…) if the correct camera does not open;
+- `CONF_MIN` — minimum confidence threshold for a detection (default `0.35`);
+- `IOU_DEDUP` — overlap threshold above which two detections are considered the same object
+
+-It is recomanded to be integreted in bigger system, but it canbe use alone
